@@ -1,19 +1,19 @@
-import json
-from datetime import datetime
-from google.cloud import language_v1
-import types
+'''   ~~~~~~   Google Review Responder   ~~~~~~   '''
+import datetime
+from google.cloud import language_v1 as lang
 import requests
 
 
-# #Google Review Responder
-gapi_Key = "AIzaSyB_w7goaSbR2tmHAllqpNLNKFmaqjfpSio"
-place_id = "ChIJg5WqpxwodTERGZllG4JgTr0"  # AEON Mall Binh Duong Canary
-url_part1 = "https://maps.googleapis.com/maps/api/place/details/json?"
+API_KEY = "AIzaSyB_w7goaSbR2tmHAllqpNLNKFmaqjfpSio"
+PLACE_ID = "ChIJg5WqpxwodTERGZllG4JgTr0"  # AEON Mall Binh Duong Canary
+URL_PART1 = "https://maps.googleapis.com/maps/api/place/details/json?"
 
 
 def review_gather():
+    '''get reviews and pass them to the responder'''
+
     # Get all the google business reviews posted in the last hour
-    url = f'{url_part1}placeid={place_id}fields=reviews&key={gapi_Key}'
+    url = f'{URL_PART1}placeid={PLACE_ID}fields=reviews&key={API_KEY}'
     response = requests.get(url, timeout=5)
     business_reviews = response.json()
     # # Loop through each review
@@ -23,17 +23,19 @@ def review_gather():
     # If the review was posted in the last hour
         if review_time >= (datetime.time() * 1000) - 3600000:
             # convert review to dataframe and then use to_csv to save results in the csv file.
-            google_review_responder(review)
+            review_responder(review)
 
 
-def google_review_responder(text):
+def review_responder(text):
+    '''take reviews and determine the sentiment, then respond appropriately'''
+
     # Instantiates a client
-    client = language_v1.LanguageServiceClient()
+    client = lang.LanguageServiceClient()
 
     # The text to analyze
     text = "Hello, world!"
-    document = language_v1.Document(
-        content=text, type_=language_v1.Document.Type.PLAIN_TEXT
+    document = lang.Document(
+        content=text, type_=lang.Document.Type.PLAIN_TEXT
     )
 
     # Detects the sentiment of the text
@@ -41,8 +43,8 @@ def google_review_responder(text):
         request={"document": document}
     ).document_sentiment
 
-    print("Text: {}".format(text))
-    print("Sentiment: {}, {}".format(sentiment.score, sentiment.magnitude))
+    print(f"Text: {text}")
+    print(f"Sentiment: {sentiment.score}, {sentiment.magnitude}")
 
 # # Generate the response
     if sentiment.score < 0:
