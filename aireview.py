@@ -72,7 +72,7 @@ def review_responder(text):
         response = "Thank you for the kind words! We really appreciate your feedback."
     else:
         response = "We appreciate your feedback and we're always looking to improve our services."
-    print(response)
+    return response
 
 
 review_gather()
