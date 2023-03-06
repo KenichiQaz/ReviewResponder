@@ -2,9 +2,10 @@
 import datetime
 from google.cloud import language_v1 as lang
 import requests
+import os
 
 '''  API Key will be moved to environment soon also testing the autocommit '''
-API_KEY = process.env.{GOOGLEAPIKEY} 
+API_KEY = os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJg5WqpxwodTERGZllG4JgTr0"  # AEON Mall Binh Duong Canary
 URL_PART1 = "https://maps.googleapis.com/maps/api/place/details/json?"
 
