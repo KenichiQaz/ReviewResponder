@@ -14,6 +14,7 @@ def review_gather():
 
     # Get all the google business reviews posted in the last hour
     url = f'{URL_PART1}placeid={PLACE_ID}fields=reviews&key={API_KEY}'
+    print(url)
     response = requests.get(url, timeout=5)
     business_reviews = response.json()
     # # Loop through each review
@@ -54,3 +55,5 @@ def review_responder(text):
     else:
         response = "We appreciate your feedback and we're always looking to improve our services."
     return response
+
+review_gather()
