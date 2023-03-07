@@ -9,15 +9,14 @@ API_KEY = os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
 URL_START = "https://maps.googleapis.com/maps/api/place/details/json?"
 
-
 def connect_read_database():
     ''' Connect to the database '''
     conn = sqlite3.connect('reviews.db')
     cursor = conn.execute("SELECT * FROM Reviews")
-    dataframe = pd.read_sql(cursor, conn)
+    database_data = pd.read_sql(cursor, conn)
     print("Operation done successfully")
     conn.close()
-    return dataframe
+    return database_data
 
 
 def review_gather():
@@ -25,21 +24,22 @@ def review_gather():
     payload = {}
     headers = {}
     url = f'{URL_START}placeid={PLACE_ID}&fields=reviews&key={API_KEY}&reviews_sort=newest'
-    print(url)
+#    print(url)
     json_response = requests.request(
         "GET", url, headers=headers, data=payload, timeout=5)
     business_reviews = json_response.json()
+    # check if valid response is received
     for review in business_reviews['result']['reviews']:
-        bus_data = pd.read_json(review)
-    return bus_data
+        web_data = pd.read_json(review)
+    #if webdata != "" then return webdata else return empty dataframe
+    return web_data
 
 
-def review_responder(text):
+def responder(text):
     ''' take reviews and determine the sentiment, then respond appropriately '''
     client = lang.LanguageServiceClient()
     document = lang.Document(content=text, type_=lang.Document.Type.PLAIN_TEXT)
-    sentiment = client.analyze_sentiment(
-        request={"document": document}).document_sentiment
+    sentiment = client.analyze_sentiment(request={"document": document}).document_sentiment
     # pylint: disable=C0301. # disable line too long error
     if sentiment.score < 0:
         response = "I'm sorry to hear that. Please tell us more about your experience so we can better our services."
@@ -56,6 +56,13 @@ def db_search():
         database = pd.DataFrame()
         database = database.append(connect_read_database())
         database = database.append(review_gather())
+        database = database.reset_index()
+        for row in database.iterrows():
+            if row['Response'] == "":
+                row['Response'] = responder(row['text'])
+        conn = sqlite3.connect('reviews.db')
+        database.to_sql('Reviews', conn, if_exists='replace', index = False)
+        conn.close()
     # get responder
     # Search the database for review id
     # write response if it is empty
