@@ -1,6 +1,5 @@
 '''   ~~~~~~   Google Review Responder   ~~~~~~   '''
 import os
-import time
 import sqlite3
 import pandas as pd
 from google.cloud import language_v1 as lang
@@ -8,15 +7,14 @@ import requests
 
 API_KEY = os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
-URL_PART1 = "https://maps.googleapis.com/maps/api/place/details/json?"
+URL_START = "https://maps.googleapis.com/maps/api/place/details/json?"
 
 
 def connect_read_database():
     ''' Connect to the database '''
     conn = sqlite3.connect('reviews.db')
-    cursor = conn.execute("SELECT id, name, address, salary from COMPANY")
-    for row in cursor:
-        dataframe = pd.DataFrame(row)
+    cursor = conn.execute("SELECT * FROM Reviews")
+    dataframe = pd.read_sql(cursor, conn)
     print("Operation done successfully")
     conn.close()
     return dataframe
@@ -26,20 +24,14 @@ def review_gather():
     ''' get reviews and pass them to the responder '''
     payload = {}
     headers = {}
-    # Get all the google business reviews posted in the last hour
-    url = f'{URL_PART1}placeid={PLACE_ID}&fields=reviews&key={API_KEY}&reviews_sort=newest'
+    url = f'{URL_START}placeid={PLACE_ID}&fields=reviews&key={API_KEY}&reviews_sort=newest'
     print(url)
     json_response = requests.request(
         "GET", url, headers=headers, data=payload, timeout=5)
     business_reviews = json_response.json()
-
     for review in business_reviews['result']['reviews']:
-        review_time = review['time']
-        unix_timestamp = int(review_time)
-        utc_time = time.gmtime(unix_timestamp)
-        print(time.strftime("%Y-%m-%d %H:%M:%S+00:00 (UTC)", utc_time))
-        return review_responder(review)
-#   add response to database
+        bus_data = pd.read_json(review)
+    return bus_data
 
 
 def review_responder(text):
@@ -60,6 +52,10 @@ def review_responder(text):
 
 def db_search():
     ''' Search the database '''
+    if os.path.exists("reviews.db"):
+        database = pd.DataFrame()
+        database = database.append(connect_read_database())
+        database = database.append(review_gather())
+    # get responder
     # Search the database for review id
     # write response if it is empty
-    return "pass"
