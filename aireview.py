@@ -1,6 +1,7 @@
 '''   ~~~~~~   Google Review Responder   ~~~~~~   '''
 import os
 import time
+import datetime
 from google.cloud import language_v1 as lang
 import requests
 import pandas as pd
@@ -8,7 +9,7 @@ import json
 from pandas import json_normalize
 
 API_KEY = os.environ.get("GOOGLEAPIKEY")
-PLACE_ID = "ChIJe3V5nnIpdTERNWAyzBpURU4"  # Scotch AGS
+PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
 URL_PART1 = "https://maps.googleapis.com/maps/api/place/details/json?"
 
 
@@ -16,7 +17,7 @@ def review_gather():
     '''get reviews and pass them to the responder'''
 
     # Get all the google business reviews posted in the last hour
-    url = f'{URL_PART1}placeid={PLACE_ID}&fields=reviews&key={API_KEY}'
+    url = f'{URL_PART1}placeid={PLACE_ID}&fields=reviews&key={API_KEY}&reviews_sort=newest'
     print(url)
     payload = {}
     headers = {}
@@ -31,14 +32,12 @@ def review_gather():
         # # Get the time the review was posted in milliseconds
         responsestr = ""
         review_time = review['time']
+        unix_timestamp  = int(review_time)
+        utc_time = time.gmtime(unix_timestamp)
+        print(time.strftime("%Y-%m-%d %H:%M:%S+00:00 (UTC)", utc_time))  
     # If the review was posted in the last hour
-        if review_time >= round(time.time()*1000) - 3600000:
-            # convert review to dataframe and then use to_csv to save results in the csv file.
-            responsestr = review_responder(review)
-        if responsestr:
-            df['response'] = responsestr
-        else:
-            df['response'] = ""
+        responsestr = review_responder(review)
+        df['response'] = responsestr
     if os.path.exists("reviews.csv"):
         df.to_csv("reviews.csv", mode='a', index=True, header=False)
     else:
