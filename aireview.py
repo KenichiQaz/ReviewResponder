@@ -1,12 +1,12 @@
 '''   ~~~~~~   Google Review Responder   ~~~~~~   '''
 import os
 import time
-import datetime
+import pandas as pd
+#import json
+#from pandas import json_normalize
 from google.cloud import language_v1 as lang
 import requests
-import pandas as pd
-import json
-from pandas import json_normalize
+
 
 API_KEY = os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
@@ -26,22 +26,22 @@ def review_gather():
         "GET", url, headers=headers, data=payload, timeout=5)
     business_reviews = response.json()
     # # Loop through each review
-    df = pd.json_normalize(business_reviews['result']['reviews'])
+    dataframe = pd.json_normalize(business_reviews['result']['reviews'])
 
     for review in business_reviews['result']['reviews']:
         # # Get the time the review was posted in milliseconds
         responsestr = ""
         review_time = review['time']
-        unix_timestamp  = int(review_time)
+        unix_timestamp = int(review_time)
         utc_time = time.gmtime(unix_timestamp)
-        print(time.strftime("%Y-%m-%d %H:%M:%S+00:00 (UTC)", utc_time))  
+        print(time.strftime("%Y-%m-%d %H:%M:%S+00:00 (UTC)", utc_time))
     # If the review was posted in the last hour
         responsestr = review_responder(review)
-        df['response'] = responsestr
+        dataframe['response'] = responsestr
     if os.path.exists("reviews.csv"):
-        df.to_csv("reviews.csv", mode='a', index=True, header=False)
+        dataframe.to_csv("reviews.csv", mode='a', index=True, header=False)
     else:
-        df.to_csv("reviews.csv", mode='w', index=True, header=True)
+        dataframe.to_csv("reviews.csv", mode='w', index=True, header=True)
 
 
 def review_responder(text):
@@ -58,8 +58,7 @@ def review_responder(text):
 
     # Detects the sentiment of the text
     sentiment = client.analyze_sentiment(
-        request={"document": document}
-    ).document_sentiment
+        request={"document": document}).document_sentiment
 
     print(f"Text: {text}")
     print(f"Sentiment: {sentiment.score}, {sentiment.magnitude}")
