@@ -1,28 +1,26 @@
 '''   ~~~~~~   Google Review Responder   ~~~~~~   '''
 import os
 import time
+import sqlite3
 import pandas as pd
-# import json
-# from pandas import json_normalize
 from google.cloud import language_v1 as lang
 import requests
-import sqlite3
 
 API_KEY = os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
 URL_PART1 = "https://maps.googleapis.com/maps/api/place/details/json?"
 
-def connect_database():
+
+def connect_read_database():
     ''' Connect to the database '''
     conn = sqlite3.connect('reviews.db')
     cursor = conn.execute("SELECT id, name, address, salary from COMPANY")
     for row in cursor:
-        dataframe = pd.DataFrame(row,
-    
-    # conn.commit()
-
+        dataframe = pd.DataFrame(row)
     print("Operation done successfully")
     conn.close()
+    return dataframe
+
 
 def review_gather():
     ''' get reviews and pass them to the responder '''
