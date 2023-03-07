@@ -19,7 +19,7 @@ def connect_read_database():
     return database_data
 
 
-def review_gather():
+def review_gatherer():
     ''' get reviews and pass them to the responder '''
     payload = {}
     headers = {}
@@ -35,7 +35,7 @@ def review_gather():
     return web_data
 
 
-def responder(text):
+def responder(text: str) -> str:
     ''' take reviews and determine the sentiment, then respond appropriately '''
     client = lang.LanguageServiceClient()
     document = lang.Document(content=text, type_=lang.Document.Type.PLAIN_TEXT)
@@ -52,10 +52,10 @@ def responder(text):
 
 def db_search():
     ''' Search the database '''
+    database = pd.DataFrame()
     if os.path.exists("reviews.db"):
-        database = pd.DataFrame()
         database = database.append(connect_read_database())
-        database = database.append(review_gather())
+        database = database.append(review_gatherer())
         database = database.reset_index()
         for row in database.iterrows():
             if row['Response'] == "":
