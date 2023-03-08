@@ -12,7 +12,7 @@ URL_START = "https://maps.googleapis.com/maps/api/place/details/json?"
 
 def gmaps_get_reviews():
     gmaps = googlemaps.Client(key=API_KEY)
-    place = gmaps.place('ChIJmxoAhvdX4joR9aZdwt5FjgE')
+    place = gmaps.place(PLACE_ID)
     place['result']['reviews']
 
 def connect_read_database():
@@ -72,3 +72,4 @@ def db_search():
     # get responder
     # Search the database for review id
     # write response if it is empty
+gmaps_get_reviews()
