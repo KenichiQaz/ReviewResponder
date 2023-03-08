@@ -1,1 +1,2 @@
 google-cloud-language==2.9.0
+googlemaps==4.10.0

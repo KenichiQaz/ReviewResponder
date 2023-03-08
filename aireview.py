@@ -5,9 +5,15 @@ import pandas as pd
 from google.cloud import language_v1 as lang
 import requests
 
+
 API_KEY = os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
 URL_START = "https://maps.googleapis.com/maps/api/place/details/json?"
+
+def gmaps_get_reviews():
+    gmaps = googlemaps.Client(key=API_KEY)
+    place = gmaps.place('ChIJmxoAhvdX4joR9aZdwt5FjgE')
+    place['result']['reviews']
 
 def connect_read_database():
     ''' Connect to the database '''
