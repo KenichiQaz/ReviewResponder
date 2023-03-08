@@ -5,20 +5,14 @@ import pandas as pd
 from google.cloud import language_v1 as lang
 import requests
 
-
-API_KEY = os.environ.get("GOOGLEAPIKEY")
+API_KEY = "AIzaSyB_w7goaSbR2tmHAllqpNLNKFmaqjfpSio" #os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
 URL_START = "https://maps.googleapis.com/maps/api/place/details/json?"
-
-def gmaps_get_reviews():
-    gmaps = googlemaps.Client(key=API_KEY)
-    place = gmaps.place(PLACE_ID)
-    place['result']['reviews']
 
 def connect_read_database():
     ''' Connect to the database '''
     conn = sqlite3.connect('reviews.db')
-    cursor = conn.execute("SELECT * FROM Reviews")
+    cursor = str(conn.execute("SELECT * FROM Reviews"))
     database_data = pd.read_sql(cursor, conn)
     print("Operation done successfully")
     conn.close()
@@ -30,13 +24,14 @@ def review_gatherer():
     payload = {}
     headers = {}
     url = f'{URL_START}placeid={PLACE_ID}&fields=reviews&key={API_KEY}&reviews_sort=newest'
-#    print(url)
-    json_response = requests.request(
-        "GET", url, headers=headers, data=payload, timeout=5)
+    print(url)
+    json_response = requests.request("GET", url, headers=headers, data=payload, timeout=5)
     business_reviews = json_response.json()
+    #print(business_reviews)
     # check if valid response is received
     for review in business_reviews['result']['reviews']:
-        web_data = pd.read_json(review)
+        web_data = review
+        print(review)
     #if webdata != "" then return webdata else return empty dataframe
     return web_data
 
@@ -72,4 +67,11 @@ def db_search():
     # get responder
     # Search the database for review id
     # write response if it is empty
-gmaps_get_reviews()
+def test():
+    database = review_gatherer()
+    for row in database.iterrows():
+            if row['Response'] == "":
+                row['Response'] = responder(row['text'])
+                print(row['Response'])
+
+test()
