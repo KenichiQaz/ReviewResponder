@@ -9,16 +9,6 @@ API_KEY = "AIzaSyB_w7goaSbR2tmHAllqpNLNKFmaqjfpSio" #os.environ.get("GOOGLEAPIKE
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
 URL_START = "https://maps.googleapis.com/maps/api/place/details/json?"
 
-def connect_read_database():
-    ''' Connect to the database '''
-    conn = sqlite3.connect('reviews.db')
-    cursor = str(conn.execute("SELECT * FROM Reviews"))
-    database_data = pd.read_sql(cursor, conn)
-    print("Operation done successfully")
-    conn.close()
-    return database_data
-
-
 def review_gatherer():
     ''' get reviews and pass them to the responder '''
     payload = {}
@@ -54,24 +44,16 @@ def responder(text: str) -> str:
 def db_search():
     ''' Search the database '''
     database = pd.DataFrame()
-    if os.path.exists("reviews.db"):
-        database = database.append(connect_read_database())
-        database = database.append(review_gatherer())
-        database = database.reset_index()
-        for row in database.iterrows():
-            if row['Response'] == "":
-                row['Response'] = responder(row['text'])
-        conn = sqlite3.connect('reviews.db')
-        database.to_sql('Reviews', conn, if_exists='replace', index = False)
-        conn.close()
-    # get responder
-    # Search the database for review id
-    # write response if it is empty
+    database = database.append(review_gatherer())
+    database = database.reset_index()
+    for row in database.iterrows():
+        if row['Response'] == "":
+            row['Response'] = responder(row['text'])
+    
+
 def test():
     database = review_gatherer()
     for row in database.iterrows():
             if row['Response'] == "":
                 row['Response'] = responder(row['text'])
                 print(row['Response'])
-
-test()
