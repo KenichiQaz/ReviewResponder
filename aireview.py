@@ -24,7 +24,6 @@ def review_gatherer():
     payload = {}
     headers = {}
     url = f'{URL_START}placeid={PLACE_ID}&fields=reviews&key={API_KEY}&reviews_sort=newest'
-#    print(url)
     json_response = requests.request(
         "GET", url, headers=headers, data=payload, timeout=5)
     business_reviews = json_response.json()
