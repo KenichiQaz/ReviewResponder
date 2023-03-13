@@ -1,8 +1,11 @@
-<h1 align="center">Welcome to Google Review Responder 👋</h1>
+<h1 align="center">Welcome to Google Review Responder (Obsolete)👋</h1>
 <p>
 </p>
 
+> This project has become obsolete and so now only retrieves the reviews.
+
 > This project is aimed at creating an api for use in websites to allow users to setup their own automations with regards to google reviews and allow them to easily respond to these reviews either personally or using the AI tool included
+
 
 ## Author
 
