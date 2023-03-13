@@ -5,7 +5,7 @@ import pandas as pd
 from google.cloud import language_v1 as lang
 import requests
 
-API_KEY = "AIzaSyB_w7goaSbR2tmHAllqpNLNKFmaqjfpSio" #os.environ.get("GOOGLEAPIKEY")
+API_KEY = os.environ.get("GOOGLEAPIKEY")
 PLACE_ID = "ChIJmQa2NZUrdTERWx3Ui77zN0c"  # ÆON MALL Tân Phú Celadon
 URL_START = "https://maps.googleapis.com/maps/api/place/details/json?"
 
